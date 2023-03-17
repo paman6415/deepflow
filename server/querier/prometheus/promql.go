@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/deepflowio/deepflow/server/querier/common"
+
 	//"github.com/k0kubun/pp"
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/labels"
@@ -64,6 +65,8 @@ func PromQueryExecute(args *common.PromQueryParams, ctx context.Context) (result
 	}
 	e := promql.NewEngine(opts)
 	//pp.Println(opts.MaxSamples)
+
+	log.Infof("[PromQueryExecute] promql : %s", args.Promql)
 	qry, err := e.NewInstantQuery(&RemoteReadQuerierable{Args: args, Ctx: ctx}, nil, args.Promql, time.Unix(int64(timeS), 0))
 	if qry == nil || err != nil {
 		//pp.Println(err)
@@ -120,6 +123,7 @@ func PromQueryRangeExecute(args *common.PromQueryParams, ctx context.Context) (r
 		EnablePerStepStats:       true,
 	}
 	e := promql.NewEngine(opts)
+	log.Infof("[PromQueryRangeExecute] promql : %s", args.Promql)
 	//pp.Println(opts.MaxSamples)
 	qry, err := e.NewRangeQuery(&RemoteReadRangeQuerierable{Args: args, Ctx: ctx}, nil, args.Promql, time.Unix(int64(startS), 0), time.Unix(int64(endS), 0), step)
 	if qry == nil || err != nil {

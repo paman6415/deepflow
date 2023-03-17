@@ -21,6 +21,7 @@ func PromReaderExecute(req *prompb.ReadRequest, ctx context.Context) (resp *prom
 	// promrequest trans to sql
 	// pp.Println(req)
 	sql, db, datasource, err := PromReaderTransToSQL(req, ctx)
+	log.Infof("PromReaderExecute sql: %s, db: %s, datasource: %s", sql, db, datasource)
 	// fmt.Println(sql, db)
 	if err != nil {
 		return nil, err
@@ -40,6 +41,7 @@ func PromReaderExecute(req *prompb.ReadRequest, ctx context.Context) (resp *prom
 	ckEngine := &clickhouse.CHEngine{DB: args.DB, DataSource: args.DataSource}
 	ckEngine.Init()
 	result, debug, err := ckEngine.ExecuteQuery(&args)
+	log.Infof("PromReaderExecute result values: %d, err: %v", len(result.Values), err)
 	if err != nil {
 		// TODO
 		log.Errorf("ExecuteQuery failed, debug info = %v, err info = %v", debug, err)
@@ -47,6 +49,7 @@ func PromReaderExecute(req *prompb.ReadRequest, ctx context.Context) (resp *prom
 	}
 	// response trans to prom resp
 	resp, err = RespTransToProm(result)
+	log.Infof("PromReaderExecute resp results: %d, err: %v", len(resp.Results), err)
 	if err != nil {
 		log.Error(err)
 		return nil, err

@@ -357,7 +357,7 @@ func RespTransToProm(result *common.Result) (resp *prompb.ReadResponse, err erro
 			initialSeriesIndex++
 		}
 	}
-
+	log.Infof("querier result trans to Prom Response: %d series, %d series, %d samples", len(seriesArray), len(seriesArray), len(seriesSampleCount))
 	// reverse scan, make data order by time asc for prometheus filter handling (happens in prometheus PromQL engine)
 	for i := len(result.Values) - 1; i >= 0; i-- {
 		if sampleSeriesIndex[i] == -1 {

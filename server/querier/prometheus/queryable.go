@@ -42,6 +42,7 @@ func (q *RemoteReadQuerier) Select(sortSeries bool, hints *storage.SelectHints, 
 		return storage.ErrSeriesSet(err)
 	}
 	endTimeMs := int64(endTimeS * 1000)
+	log.Infof("[PromQuery] Select startTimeMs: %d, endTimeMs: %d, matchers: %d", startTimeMs, endTimeMs, len(matchers))
 	prompbQuery, err := remote.ToQuery(startTimeMs, endTimeMs, matchers, hints)
 	if err != nil {
 		log.Error(err)
@@ -52,6 +53,7 @@ func (q *RemoteReadQuerier) Select(sortSeries bool, hints *storage.SelectHints, 
 		AcceptedResponseTypes: []prompb.ReadRequest_ResponseType{prompb.ReadRequest_STREAMED_XOR_CHUNKS},
 	}
 	resp, err := PromReaderExecute(req, q.Ctx)
+	log.Infof("[PromQuery] Select result: %d", len(resp.Results[0].Timeseries))
 	if err != nil {
 		log.Error(err)
 		return storage.ErrSeriesSet(err)
@@ -99,6 +101,7 @@ func (q *RemoteReadRangeQuerier) Select(sortSeries bool, hints *storage.SelectHi
 	}
 	startMs := int64(startS * 1000)
 	endMs := int64(endS * 1000)
+	log.Infof("[PromQuery] Select startMs: %d, endMs: %d, matchers: %d", startMs, endMs, len(matchers))
 	prompbQuery, err := remote.ToQuery(startMs, endMs, matchers, hints)
 	if err != nil {
 		log.Error(err)
@@ -109,6 +112,7 @@ func (q *RemoteReadRangeQuerier) Select(sortSeries bool, hints *storage.SelectHi
 		AcceptedResponseTypes: []prompb.ReadRequest_ResponseType{prompb.ReadRequest_STREAMED_XOR_CHUNKS},
 	}
 	resp, err := PromReaderExecute(req, q.Ctx)
+	log.Infof("[PromQuery] Select result: %d", len(resp.Results[0].Timeseries))
 	if err != nil {
 		log.Error(err)
 		return storage.ErrSeriesSet(err)
