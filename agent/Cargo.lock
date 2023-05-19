@@ -807,7 +807,7 @@ dependencies = [
  "ipnetwork",
  "k8s-openapi",
  "kube",
- "kube-derive 0.74.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "kube-derive",
  "libc",
  "log 0.4.17",
  "lru",
@@ -1688,19 +1688,21 @@ dependencies = [
 [[package]]
 name = "kube"
 version = "0.74.0"
-source = "git+https://github.com/deepflowio/kube?tag=0.74.2#c423734b258393beb1019bd6896ea5b9f7df5e36"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a527a8001a61d8d470dab27ac650889938760c243903e7cd90faaf7c60a34bdd"
 dependencies = [
  "k8s-openapi",
  "kube-client",
  "kube-core",
- "kube-derive 0.74.0 (git+https://github.com/deepflowio/kube?tag=0.74.2)",
+ "kube-derive",
  "kube-runtime",
 ]
 
 [[package]]
 name = "kube-client"
 version = "0.74.0"
-source = "git+https://github.com/deepflowio/kube?tag=0.74.2#c423734b258393beb1019bd6896ea5b9f7df5e36"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c0d48f42df4e8342e9f488c4b97e3759d0042c4e7ab1a853cc285adb44409480"
 dependencies = [
  "base64 0.13.0",
  "bytes 1.2.1",
@@ -1735,7 +1737,8 @@ dependencies = [
 [[package]]
 name = "kube-core"
 version = "0.74.0"
-source = "git+https://github.com/deepflowio/kube?tag=0.74.2#c423734b258393beb1019bd6896ea5b9f7df5e36"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "91f56027f862fdcad265d2e9616af416a355e28a1c620bb709083494753e070d"
 dependencies = [
  "chrono",
  "form_urlencoded",
@@ -1763,21 +1766,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "kube-derive"
-version = "0.74.0"
-source = "git+https://github.com/deepflowio/kube?tag=0.74.2#c423734b258393beb1019bd6896ea5b9f7df5e36"
-dependencies = [
- "darling",
- "proc-macro2",
- "quote",
- "serde_json",
- "syn",
-]
-
-[[package]]
 name = "kube-runtime"
 version = "0.74.0"
-source = "git+https://github.com/deepflowio/kube?tag=0.74.2#c423734b258393beb1019bd6896ea5b9f7df5e36"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8fdcf5a20f968768e342ef1a457491bb5661fccd81119666d626c57500b16d99"
 dependencies = [
  "ahash 0.7.6",
  "backoff",
@@ -2165,7 +2157,6 @@ checksum = "0ab1bc2a289d34bd04a330323ac98a1b4bc82c9d9fcb1e66b63caa84da26b575"
 [[package]]
 name = "openshift-openapi"
 version = "0.3.1"
-source = "git+https://github.com/deepflowio/openshift-openapi.git#6498131f5f5ef80411a0aee2e7e9ba632bfdb406"
 dependencies = [
  "base64 0.12.3",
  "bytes 0.5.6",
@@ -2565,7 +2556,6 @@ dependencies = [
 [[package]]
 name = "procfs"
 version = "0.14.2"
-source = "git+https://github.com/deepflowio/procfs/#1c94cdad59460c3d5932714bb2537dff97e24122"
 dependencies = [
  "bitflags",
  "byteorder",
@@ -4526,3 +4516,7 @@ dependencies = [
  "libc",
  "pkg-config",
 ]
+
+[[patch.unused]]
+name = "kube"
+version = "0.75.0"

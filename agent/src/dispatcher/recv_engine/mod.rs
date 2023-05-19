@@ -16,6 +16,8 @@
 
 pub mod af_packet;
 pub(crate) mod bpf;
+#[cfg(target_os = "linux")]
+pub mod dpdk;
 
 #[cfg(target_os = "windows")]
 use std::ffi::CStr;
@@ -24,6 +26,8 @@ use std::time::Duration;
 
 #[cfg(target_os = "linux")]
 use af_packet::{options::Options, tpacket::Tpacket};
+#[cfg(target_os = "linux")]
+use dpdk::Dpdk;
 pub use public::error::{Error, Result};
 use public::packet;
 
@@ -40,7 +44,8 @@ pub const POLL_TIMEOUT: Duration = Duration::from_millis(100);
 pub enum RecvEngine {
     #[cfg(target_os = "linux")]
     AfPacket(Tpacket),
-    Dpdk(),
+    #[cfg(target_os = "linux")]
+    Dpdk(Dpdk),
     #[cfg(target_os = "windows")]
     WinPcap(Option<WinPacket>),
 }
@@ -52,7 +57,8 @@ impl RecvEngine {
         match self {
             #[cfg(target_os = "linux")]
             Self::AfPacket(_) => Ok(()),
-            Self::Dpdk() => todo!(),
+            #[cfg(target_os = "linux")]
+            Self::Dpdk(_) => Ok(()),
             #[cfg(target_os = "windows")]
             Self::WinPcap(_) => Ok(()),
         }
@@ -75,7 +81,11 @@ impl RecvEngine {
                 Some(p) => Ok(p),
                 None => Err(Error::Timeout),
             },
-            Self::Dpdk() => todo!(),
+            #[cfg(target_os = "linux")]
+            Self::Dpdk(d) => match d.read() {
+                Some(p) => Ok(p),
+                None => Err(Error::Timeout),
+            },
             // Enterprise Edition Feature: windows-dispatcher
             #[cfg(target_os = "windows")]
             Self::WinPcap(w) => w
@@ -89,7 +99,7 @@ impl RecvEngine {
     pub fn set_bpf(&mut self, s: Vec<af_packet::RawInstruction>) -> Result<()> {
         match self {
             Self::AfPacket(e) => e.set_bpf(s).map_err(|e| e.into()),
-            Self::Dpdk() => todo!(),
+            Self::Dpdk(_) => Ok(()),
         }
     }
 
@@ -108,7 +118,8 @@ impl RecvEngine {
         match self {
             #[cfg(target_os = "linux")]
             Self::AfPacket(e) => Arc::new(e.get_counter_handle()),
-            Self::Dpdk() => todo!(),
+            #[cfg(target_os = "linux")]
+            Self::Dpdk(_) => todo!(),
             #[cfg(target_os = "windows")]
             Self::WinPcap(w) => match w {
                 Some(w) => w.get_counter_handle(),

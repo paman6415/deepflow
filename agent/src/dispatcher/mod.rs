@@ -58,6 +58,7 @@ pub use recv_engine::RecvEngine;
 #[cfg(target_os = "linux")]
 pub use recv_engine::{
     af_packet::{self, bpf::*, BpfSyntax, OptTpacketVersion, RawInstruction, Tpacket},
+    dpdk::Dpdk,
     DEFAULT_BLOCK_SIZE, FRAME_SIZE_MAX, FRAME_SIZE_MIN, POLL_TIMEOUT,
 };
 
@@ -1042,7 +1043,10 @@ impl DispatcherBuilder {
                 ));
                 #[cfg(not(target_arch = "s390x"))]
                 {
-                    Ok(RecvEngine::Dpdk())
+                    Ok(RecvEngine::Dpdk(Dpdk::new(
+                        options.dpdk_conf.port_name.clone(),
+                        options.dpdk_conf.core_id,
+                    )))
                 }
             }
             TapMode::Local | TapMode::Mirror | TapMode::Analyzer => {

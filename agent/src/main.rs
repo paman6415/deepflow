@@ -21,6 +21,8 @@ use clap::{ArgAction, Parser};
 #[cfg(target_os = "linux")]
 use signal_hook::{consts::TERM_SIGNALS, iterator::Signals};
 
+use dispatcher::Dpdk;
+
 use ::deepflow_agent::*;
 
 #[derive(Parser)]
@@ -87,22 +89,23 @@ const VERSION_INFO: &'static trident::VersionInfo = &trident::VersionInfo {
 };
 
 fn main() -> Result<()> {
-    let opts = Opts::parse();
-    if opts.version {
-        println!("{}", VERSION_INFO);
-        return Ok(());
-    }
-    let mut t = trident::Trident::start(
-        &Path::new(&opts.config_file),
-        VERSION_INFO,
-        if opts.standalone {
-            trident::RunningMode::Standalone
-        } else {
-            trident::RunningMode::Managed
-        },
-    )?;
-    wait_on_signals();
-    t.stop();
+    let a = Dpdk::new("abcd".to_string(), 0);
+    // let opts = Opts::parse();
+    // if opts.version {
+    //     println!("{}", VERSION_INFO);
+    //     return Ok(());
+    // }
+    // let mut t = trident::Trident::start(
+    //     &Path::new(&opts.config_file),
+    //     VERSION_INFO,
+    //     if opts.standalone {
+    //         trident::RunningMode::Standalone
+    //     } else {
+    //         trident::RunningMode::Managed
+    //     },
+    // )?;
+    // wait_on_signals();
+    // t.stop();
 
     Ok(())
 }

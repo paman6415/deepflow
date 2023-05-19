@@ -143,6 +143,7 @@ fn set_linkage() -> Result<(), Box<dyn Error>> {
         }
         _ => panic!("Unsupported target"),
     }
+    println!("cargo:rustc-link-lib=dylib=dpdk");
     Ok(())
 }
 
