@@ -83,6 +83,9 @@ pub enum Error {
     SoReturnUnexpectVal,
     #[error("so plugin parse fail")]
     SoParseFail,
+
+    #[error("l7 data not enough to parse")]
+    NeedMoreData,
 }
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;

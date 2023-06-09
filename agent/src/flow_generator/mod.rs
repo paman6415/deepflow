@@ -25,6 +25,7 @@ pub mod perf;
 mod pool;
 pub mod protocol_logs;
 mod service_table;
+pub mod tcp_reassemble;
 
 pub use app_table::AppTable;
 pub use error::{Error, Result};
@@ -38,6 +39,8 @@ pub use protocol_logs::{
     AppProtoHead, AppProtoLogsBaseInfo, AppProtoLogsData, DnsLog, DubboLog, HttpLog, KafkaLog,
     LogMessageType, MetaAppProto, MqttLog, MysqlLog, RedisLog,
 };
+#[cfg(test)]
+mod tcp_reassemble_test;
 
 use std::time::Duration;
 

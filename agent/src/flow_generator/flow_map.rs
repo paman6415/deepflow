@@ -40,6 +40,7 @@ use super::{
     pool::MemoryPool,
     protocol_logs::MetaAppProto,
     service_table::{ServiceKey, ServiceTable},
+    tcp_reassemble::TcpFlowReassembleBuf,
     FlowMapKey, FlowNode, FlowState, FlowTimeout, COUNTER_FLOW_ID_MASK, FLOW_METRICS_PEER_DST,
     FLOW_METRICS_PEER_SRC, L7_PROTOCOL_UNKNOWN_LIMIT, QUEUE_BATCH_SIZE,
     SERVICE_TABLE_IPV4_CAPACITY, SERVICE_TABLE_IPV6_CAPACITY, STATISTICAL_INTERVAL,
@@ -1061,6 +1062,14 @@ impl FlowMap {
         node.endpoint_data_cache = Default::default();
         node.packet_sequence_block = None; // Enterprise Edition Feature: packet-sequence
         node.residual_request = 0;
+
+        if meta_packet.lookup_key.proto == IpProtocol::Tcp && config.flow.tcp_reassemble_enabled {
+            // tcp reassemble info
+            node.tcp_reassemble_buf_data = Some(Box::new(TcpFlowReassembleBuf::new(
+                config.flow.l7_log_packet_size as usize,
+                config.flow.max_tcp_reassemble_frag,
+            )));
+        }
         #[cfg(target_os = "linux")]
         let local_epc_id = match config.ebpf.as_ref() {
             Some(c) => c.epc_id as i32,
@@ -1132,6 +1141,7 @@ impl FlowMap {
                     IpProtocol::Udp => flow_config.rrt_udp_timeout,
                     _ => 0,
                 },
+                node.tcp_reassemble_buf_data.clone(),
             )
             .map(|o| Box::new(o));
         }

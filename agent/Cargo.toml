@@ -153,3 +153,4 @@ panic = 'abort'
 
 [profile.dev]
 panic = 'abort'
+overflow-checks = false

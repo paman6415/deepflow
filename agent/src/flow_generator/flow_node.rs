@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-use std::{net::IpAddr, sync::Arc, time::Duration};
+use std::{cell::RefCell, net::IpAddr, rc::Rc, sync::Arc, time::Duration};
 
-use super::{perf::FlowLog, FlowState, FLOW_METRICS_PEER_DST, FLOW_METRICS_PEER_SRC};
+use super::{
+    perf::FlowLog, tcp_reassemble::TcpFlowReassembleBuf, FlowState, FLOW_METRICS_PEER_DST,
+    FLOW_METRICS_PEER_SRC,
+};
 use crate::common::{
     decapsulate::TunnelType,
     endpoint::EndpointDataPov,
@@ -140,6 +143,8 @@ pub struct FlowNode {
 
     // Enterprise Edition Feature: packet-sequence
     pub packet_sequence_block: Option<Box<PacketSequenceBlock>>,
+
+    pub tcp_reassemble_buf_data: Option<Rc<RefCell<TcpFlowReassembleBuf>>>,
 }
 
 impl FlowNode {

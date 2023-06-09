@@ -460,6 +460,8 @@ pub struct YamlConfig {
     #[serde(with = "humantime_serde")]
     pub rrt_udp_timeout: Duration,
     pub prometheus_extra_config: PrometheusExtraConfig,
+    pub tcp_reassemble_enabled: bool,
+    pub max_tcp_reassemble_frag: usize,
 }
 
 impl YamlConfig {
@@ -663,6 +665,7 @@ impl YamlConfig {
         }
         c.prometheus_extra_config.labels = valid_labels;
 
+        c.max_tcp_reassemble_frag = c.max_tcp_reassemble_frag.min(32).max(8);
         Ok(c)
     }
 
@@ -800,6 +803,8 @@ impl Default for YamlConfig {
             rrt_tcp_timeout: Duration::from_secs(1800),
             rrt_udp_timeout: Duration::from_secs(150),
             prometheus_extra_config: PrometheusExtraConfig::default(),
+            tcp_reassemble_enabled: false,
+            max_tcp_reassemble_frag: 16,
         }
     }
 }

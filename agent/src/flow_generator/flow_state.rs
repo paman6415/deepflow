@@ -825,6 +825,7 @@ mod tests {
             packet_in_tick: false,
             policy_in_tick: [false; 2],
             packet_sequence_block: Some(Box::new(PacketSequenceBlock::default())), // Enterprise Edition Feature: packet-sequence
+            tcp_reassemble_buf_data: None,
         };
 
         let peers = &mut flow_node.tagged_flow.flow.flow_metrics_peers;
@@ -893,6 +894,7 @@ mod tests {
             packet_in_tick: false,
             policy_in_tick: [false; 2],
             packet_sequence_block: Some(Box::new(PacketSequenceBlock::default())), // Enterprise Edition Feature: packet-sequence
+            tcp_reassemble_buf_data: None,
         };
 
         let peers = &mut flow_node.tagged_flow.flow.flow_metrics_peers;

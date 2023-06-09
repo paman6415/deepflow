@@ -29,6 +29,7 @@ pub mod packet;
 pub mod proto;
 pub mod pwd;
 pub mod queue;
+pub mod ringbuf;
 pub mod sender;
 pub mod utils;
 

@@ -34,6 +34,7 @@ use super::{
     flow_map::FlowMapCounter,
     pool::MemoryPool,
     protocol_logs::AppProtoHead,
+    tcp_reassemble::TcpFlowReassembleBuf,
 };
 
 use crate::common::l7_protocol_log::L7PerfCache;
@@ -198,6 +199,10 @@ pub struct FlowLog {
     so_plugin_counter: Option<Rc<SoPluginCounterMap>>,
     stats_counter: Arc<FlowMapCounter>,
     rrt_timeout: usize,
+
+    // the max reassemble tcp frame
+    // set to None when check fail
+    pub tcp_reassemble_buf_data: Option<Rc<RefCell<TcpFlowReassembleBuf>>>,
 }
 
 impl FlowLog {
@@ -447,6 +452,7 @@ impl FlowLog {
         #[cfg(target_os = "linux")] so_plugin_counter: Option<Rc<SoPluginCounterMap>>,
         stats_counter: Arc<FlowMapCounter>,
         rrt_timeout: usize,
+        tcp_reassemble_buf_data: Option<Rc<RefCell<TcpFlowReassembleBuf>>>,
     ) -> Option<Self> {
         if !l4_enabled && !l7_enabled {
             return None;
@@ -481,6 +487,7 @@ impl FlowLog {
             so_plugin_counter,
             stats_counter: stats_counter,
             rrt_timeout: rrt_timeout,
+            tcp_reassemble_buf_data,
         })
     }
 
