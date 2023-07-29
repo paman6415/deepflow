@@ -877,7 +877,7 @@ impl HttpLog {
                 info.span_id = id;
             }
         }
-        if key == &config.x_request_id {
+        if config.x_request_id.contains(key) {
             if direction == PacketDirection::ClientToServer {
                 info.x_request_id_0 = val.to_owned();
             } else {
@@ -950,7 +950,7 @@ impl HttpLog {
         tingyun::decode_trace_id(value)
     }
 
-    fn decode_id(payload: &str, trace_key: &str, id_type: u8) -> Option<String> {
+    pub fn decode_id(payload: &str, trace_key: &str, id_type: u8) -> Option<String> {
         let trace_type = TraceType::from(trace_key);
         match trace_type {
             TraceType::Disabled | TraceType::XB3 | TraceType::XB3Span | TraceType::Customize(_) => {
@@ -1230,7 +1230,7 @@ mod tests {
         let first_dst_port = packets[0].lookup_key.dst_port;
         let config = L7LogDynamicConfig::new(
             "".to_owned(),
-            "".to_owned(),
+            vec![],
             vec![TraceType::Sw8],
             vec![TraceType::Sw8],
         );
