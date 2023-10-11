@@ -45,6 +45,8 @@ use regex::Regex;
 use tokio::runtime::{Builder, Runtime};
 use tokio::sync::broadcast;
 
+use crate::common::l7_protocol_log::ExternLogParser;
+use crate::common::l7_protocol_log::EXTERN_PARSER;
 #[cfg(target_os = "linux")]
 use crate::platform::prometheus::targets::TargetsWatcher;
 use crate::{
@@ -234,7 +236,12 @@ impl Trident {
         version_info: &'static VersionInfo,
         agent_mode: RunningMode,
         sidecar_mode: bool,
+        ext_parser: ExternLogParser,
     ) -> Result<Trident> {
+        // unsafe is safe because the global var write once in start and read only in further.
+        unsafe {
+            let _ = EXTERN_PARSER.insert(Arc::new(ext_parser));
+        }
         let config = match agent_mode {
             RunningMode::Managed => {
                 match Config::load_from_file(config_path.as_ref()) {

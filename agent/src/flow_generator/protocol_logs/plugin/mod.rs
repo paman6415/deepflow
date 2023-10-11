@@ -36,7 +36,7 @@ pub mod custom_wrap;
 pub mod shared_obj;
 pub mod wasm;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[enum_dispatch(L7ProtocolParserInterface)]
 pub enum CustomLog {
     WasmLog(WasmLog),

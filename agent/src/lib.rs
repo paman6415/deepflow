@@ -71,7 +71,10 @@ pub use {
         FlowPerfCounter as _FlowPerfCounter, L7FlowPerf as _L7FlowPerf,
     },
     flow_generator::protocol_logs::LogMessageType as _LogMessageType,
-    flow_generator::HttpLog,
+    flow_generator::{
+        protocol_logs::{L7ResponseStatus, OracleInfo, OracleLog},
+        Error, HttpLog, Result,
+    },
     npb_pcap_policy::{
         NpbAction as _NpbAction, NpbTunnelType as _NpbTunnelType, TapSide as _TapSide,
     },

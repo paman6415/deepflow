@@ -19,6 +19,7 @@ use std::path::Path;
 
 use anyhow::Result;
 use clap::{ArgAction, Parser};
+use deepflow_agent::common::l7_protocol_log::ExternLogParser;
 use log::error;
 #[cfg(target_os = "linux")]
 use signal_hook::{consts::TERM_SIGNALS, iterator::Signals};
@@ -112,6 +113,7 @@ fn main() -> Result<()> {
             trident::RunningMode::Managed
         },
         opts.sidecar,
+        ExternLogParser::default(),
     )?;
     wait_on_signals();
     t.stop();

@@ -21,6 +21,7 @@ use std::rc::Rc;
 use std::sync::Arc;
 use std::time::Duration;
 
+use dyn_clone::DynClone;
 use enum_dispatch::enum_dispatch;
 use log::debug;
 use lru::LruCache;
@@ -46,6 +47,8 @@ use crate::plugin::{c_ffi::SoPluginFunc, shared_obj::SoPluginCounterMap};
 
 use public::enums::IpProtocol;
 use public::l7_protocol::{CustomProtocol, L7Protocol, L7ProtocolEnum};
+
+pub use crate::flow_generator::protocol_logs::OracleLog;
 
 /*
  所有协议都需要实现L7ProtocolLogInterface这个接口.
@@ -75,6 +78,7 @@ macro_rules! count {
 macro_rules! impl_protocol_parser {
     (pub enum $name:ident { $($proto:ident($log_type:ty)),* $(,)? }) => {
         #[enum_dispatch(L7ProtocolParserInterface)]
+        #[derive(Clone)]
         pub enum $name {
             Custom(CustomWrapLog),
             Http(HttpLog),
@@ -116,7 +120,7 @@ macro_rules! impl_protocol_parser {
         }
 
         pub fn get_parser(p: L7ProtocolEnum) -> Option<L7ProtocolParser> {
-            match p {
+            let mut parser = match p {
                 L7ProtocolEnum::L7Protocol(p) => match p {
                     L7Protocol::Http1 | L7Protocol::Http1TLS => Some(L7ProtocolParser::Http(HttpLog::new_v1())),
                     L7Protocol::Http2 | L7Protocol::Http2TLS => Some(L7ProtocolParser::Http(HttpLog::new_v2(false))),
@@ -131,18 +135,36 @@ macro_rules! impl_protocol_parser {
                     _ => None,
                 },
                 L7ProtocolEnum::Custom(p) => Some(get_custom_log_parser(p)),
-            }
+            };
+            parser.as_mut().map(|p| if p.is_extern() {
+                p.set_extern_parser(
+                    unsafe {EXTERN_PARSER.as_ref().unwrap().get_extern_parser(p.protocol())}
+                )
+            });
+
+            parser
         }
 
         pub fn get_all_protocol() -> [L7ProtocolParser; 3 + count!($($proto)*)] {
-            [
+            let mut p = [
                 L7ProtocolParser::Custom(Default::default()),
                 L7ProtocolParser::Http(HttpLog::new_v1()),
                 L7ProtocolParser::Http(HttpLog::new_v2(false)),
                 $(
                     L7ProtocolParser::$proto(Default::default()),
                 )+
-            ]
+            ];
+
+            for i in (&mut p[..]).iter_mut() {
+                if i.is_extern() {
+                    i.set_extern_parser(
+                        // unsafe is safe because EXTERN_PARSER only set once in trident start and read only in further
+                        unsafe {EXTERN_PARSER.as_ref().unwrap().get_extern_parser(i.protocol())}
+                    )
+                }
+            }
+
+            p
         }
     }
 }
@@ -169,6 +191,7 @@ impl_protocol_parser! {
         PostgreSQL(PostgresqlLog),
         Dubbo(DubboLog),
         FastCGI(FastCGILog),
+        Oracle(OracleLog),
         MQTT(MqttLog),
         // add protocol below
     }
@@ -206,7 +229,7 @@ impl L7ParseResult {
 }
 
 #[enum_dispatch]
-pub trait L7ProtocolParserInterface {
+pub trait L7ProtocolParserInterface: DynClone {
     fn check_payload(&mut self, payload: &[u8], param: &ParseParam) -> bool;
     // 协议解析
     fn parse_payload(&mut self, payload: &[u8], param: &ParseParam) -> Result<L7ParseResult>;
@@ -243,6 +266,13 @@ pub trait L7ProtocolParserInterface {
         true
     }
 
+    // whether protocol parse implement from enterprise edition
+    fn is_extern(&self) -> bool {
+        false
+    }
+
+    fn set_extern_parser(&mut self, _: Box<dyn L7ProtocolParserInterface>) {}
+
     // is parse default? use for config init.
     fn parse_default(&self) -> bool {
         true
@@ -253,6 +283,8 @@ pub trait L7ProtocolParserInterface {
     // return perf data
     fn perf_stats(&mut self) -> Option<L7PerfStats>;
 }
+
+dyn_clone::clone_trait_object!(L7ProtocolParserInterface);
 
 #[derive(Clone)]
 pub struct EbpfParam {
@@ -564,5 +596,51 @@ impl Debug for L7ProtocolBitmap {
             }
         }
         f.write_str(format!("{:#?}", p).as_str())
+    }
+}
+
+// fake extern parser, always return false check
+#[derive(Clone)]
+pub struct FalseL7LogParser {}
+
+impl L7ProtocolParserInterface for FalseL7LogParser {
+    fn check_payload(&mut self, _: &[u8], _: &ParseParam) -> bool {
+        false
+    }
+
+    fn parse_payload(&mut self, _: &[u8], _: &ParseParam) -> Result<L7ParseResult> {
+        unreachable!()
+    }
+
+    fn protocol(&self) -> L7Protocol {
+        unreachable!()
+    }
+
+    fn perf_stats(&mut self) -> Option<L7PerfStats> {
+        unreachable!()
+    }
+}
+
+pub struct ExternLogParser {
+    pub oracle: Box<dyn L7ProtocolParserInterface>,
+}
+
+impl Default for ExternLogParser {
+    fn default() -> Self {
+        Self {
+            oracle: Box::new(FalseL7LogParser {}),
+        }
+    }
+}
+
+// write in trident::start and read only in further
+pub static mut EXTERN_PARSER: Option<Arc<ExternLogParser>> = None;
+
+impl ExternLogParser {
+    pub fn get_extern_parser(&self, p: L7Protocol) -> Box<dyn L7ProtocolParserInterface> {
+        match p {
+            L7Protocol::Oracle => self.oracle.clone(),
+            _ => panic!("{:?} is not extern protocol", p),
+        }
     }
 }

@@ -26,7 +26,7 @@ use crate::{
     flow_generator::{protocol_logs::L7ResponseStatus, Error, Result},
 };
 
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Default, Serialize, Clone)]
 pub struct WasmLog {
     proto_num: Option<u8>,
     proto_str: String,

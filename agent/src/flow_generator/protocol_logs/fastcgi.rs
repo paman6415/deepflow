@@ -299,7 +299,7 @@ impl FastCGIRecord {
     }
 }
 
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize, Default, Clone)]
 pub struct FastCGILog {
     perf_stats: Option<L7PerfStats>,
 }

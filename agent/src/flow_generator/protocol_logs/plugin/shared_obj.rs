@@ -45,7 +45,7 @@ use crate::{
 
 const RESULT_LEN: i32 = 8;
 
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Default, Serialize, Clone)]
 pub struct SoLog {
     proto_num: Option<u8>,
     proto_str: String,

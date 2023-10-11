@@ -42,6 +42,7 @@ pub enum L7Protocol {
     // SQL
     MySQL = 60,
     PostgreSQL = 61,
+    Oracle = 62,
 
     // NoSQL
     Redis = 80,
@@ -74,6 +75,7 @@ impl From<String> for L7Protocol {
             "mysql" => Self::MySQL,
             "mongodb" => Self::MongoDB,
             "postgresql" => Self::PostgreSQL,
+            "oracle" => Self::Oracle,
             "redis" => Self::Redis,
             "kafka" => Self::Kafka,
             "mqtt" => Self::MQTT,

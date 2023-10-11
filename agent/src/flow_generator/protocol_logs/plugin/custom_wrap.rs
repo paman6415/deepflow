@@ -21,7 +21,7 @@ use crate::common::l7_protocol_log::{L7ParseResult, L7ProtocolParserInterface};
 
 use super::{all_plugin_log_parser, CustomLog};
 
-#[derive(Default, Debug, Serialize)]
+#[derive(Default, Debug, Serialize, Clone)]
 pub struct CustomWrapLog {
     pub(super) parser: Option<CustomLog>,
 }

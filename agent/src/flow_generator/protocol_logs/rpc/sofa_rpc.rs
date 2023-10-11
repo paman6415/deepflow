@@ -265,7 +265,7 @@ impl From<SofaRpcInfo> for L7ProtocolSendLog {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct SofaRpcLog {
     #[serde(skip)]
     perf_stats: Option<L7PerfStats>,
