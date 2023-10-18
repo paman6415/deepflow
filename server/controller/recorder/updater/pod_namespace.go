@@ -17,6 +17,7 @@
 package updater
 
 import (
+	cloudcommon "github.com/deepflowio/deepflow/server/controller/cloud/common"
 	cloudmodel "github.com/deepflowio/deepflow/server/controller/cloud/model"
 	ctrlrcommon "github.com/deepflowio/deepflow/server/controller/common"
 	"github.com/deepflowio/deepflow/server/controller/db/mysql"
@@ -77,7 +78,7 @@ func (n *PodNamespace) generateUpdateInfo(diffBase *cache.PodNamespace, cloudIte
 	if diffBase.AZLcuuid != cloudItem.AZLcuuid {
 		updateInfo["az"] = cloudItem.AZLcuuid
 	}
-	if diffBase.CloudTags != cloudItem.CloudTags {
+	if cloudcommon.DiffMap(diffBase.CloudTags, cloudItem.CloudTags) {
 		updateInfo["cloud_tags"] = cloudItem.CloudTags
 	}
 

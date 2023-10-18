@@ -392,13 +392,23 @@ func (c *Cloud) appendCloudTags(resource model.Resource, additionalResource mode
 	chostCloudTags := additionalResource.CHostCloudTags
 	for i, chost := range resource.VMs {
 		if value, ok := chostCloudTags[chost.Lcuuid]; ok {
-			resource.VMs[i].CloudTags = value
+			for k, v := range value {
+				if _, ok := resource.VMs[i].CloudTags[k]; ok {
+					continue
+				}
+				resource.VMs[i].CloudTags[k] = v
+			}
 		}
 	}
 	podNamespaceCloudTags := additionalResource.PodNamespaceCloudTags
 	for i, podNamespace := range resource.PodNamespaces {
 		if value, ok := podNamespaceCloudTags[podNamespace.Lcuuid]; ok {
-			resource.PodNamespaces[i].CloudTags = value
+			for k, v := range value {
+				if _, ok := resource.VMs[i].CloudTags[k]; ok {
+					continue
+				}
+				resource.VMs[i].CloudTags[k] = v
+			}
 		}
 	}
 
@@ -411,7 +421,12 @@ func (c *Cloud) appendCloudTags(resource model.Resource, additionalResource mode
 		for i, podNamespace := range subdomainResource.PodNamespaces {
 			if additionalSubdomainResource.PodNamespaceCloudTags != nil {
 				if value, ok := additionalSubdomainResource.PodNamespaceCloudTags[podNamespace.Lcuuid]; ok {
-					subdomainResource.PodNamespaces[i].CloudTags = value
+					for k, v := range value {
+						if _, ok := subdomainResource.PodNamespaces[i].CloudTags[k]; ok {
+							continue
+						}
+						subdomainResource.PodNamespaces[i].CloudTags[k] = v
+					}
 				}
 			}
 		}
