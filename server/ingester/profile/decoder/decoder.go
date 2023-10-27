@@ -179,7 +179,8 @@ func (d *Decoder) handleProfileData(vtapID uint16, decoder *codec.SimpleDecoder)
 			}, profile.Format, parser, metadata)
 
 			if err != nil {
-				log.Errorf("decode java profile data failed, offset=%d len=%d", decoder.Offset(), len(decoder.Bytes()))
+				log.Infof("profile.ContentType=%s, profile.Data length=%d, metadata=%+v", profile.ContentType, len(profile.Data), metadata)
+				log.Errorf("decode java profile data failed, offset=%d, len=%d, err=%s", decoder.Offset(), len(decoder.Bytes()), err)
 				return
 			}
 		case "pprof":
@@ -191,7 +192,8 @@ func (d *Decoder) handleProfileData(vtapID uint16, decoder *codec.SimpleDecoder)
 				RawData:             profile.Data,
 			}, profile.Format, parser, metadata)
 			if err != nil {
-				log.Errorf("decode golang profile data failed, offset=%d len=%d", decoder.Offset(), len(decoder.Bytes()))
+				log.Infof("profile.ContentType=%s, profile.Data length=%d, metadata=%+v", profile.ContentType, len(profile.Data), metadata)
+				log.Errorf("decode golang profile data failed, offset=%d, len=%d, err=%s", decoder.Offset(), len(decoder.Bytes()), err)
 				return
 			}
 		case "":
@@ -208,7 +210,8 @@ func (d *Decoder) handleProfileData(vtapID uint16, decoder *codec.SimpleDecoder)
 					PoolStreamingParser: true,
 				}, profile.Format, parser, metadata)
 				if err != nil {
-					log.Errorf("decode golang profile data failed, offset=%d len=%d", decoder.Offset(), len(decoder.Bytes()))
+					log.Infof("profile.ContentType=%s, profile.Data length=%d, metadata=%+v", profile.ContentType, len(profile.Data), metadata)
+					log.Errorf("decode golang profile data failed, offset=%d, len=%d, err=%s", decoder.Offset(), len(decoder.Bytes()), err)
 					return
 				}
 			} else {
@@ -222,7 +225,8 @@ func (d *Decoder) handleProfileData(vtapID uint16, decoder *codec.SimpleDecoder)
 					RawData: profile.Data,
 				}, profile.Format, parser, metadata)
 				if err != nil {
-					log.Errorf("decode golang profile data failed, offset=%d len=%d", decoder.Offset(), len(decoder.Bytes()))
+					log.Infof("profile.ContentType=%s, profile.Data length=%d, metadata=%+v", profile.ContentType, len(profile.Data), metadata)
+					log.Errorf("decode ebpf profile data failed, offset=%d, len=%d, err=%s", decoder.Offset(), len(decoder.Bytes()), err)
 					return
 				}
 			}
